@@ -3,9 +3,12 @@ CTPATH = CutTSS/
 OVSPATH = OVS/
 PSPATH = PartitionSort/
 HSPATH = HyperSplit/
-VPATH = $(CSPATH) $(CTPATH) $(OVSPATH) $(PSPATH) $(HSPATH)
+NCPATH = NeuroCuts/
+VPATH = $(CSPATH) $(CTPATH) $(OVSPATH) $(PSPATH) $(HSPATH) $(NCPATH)
 
 CPP=g++
+JSON_INCLUDE_PATH = /opt/homebrew/Cellar/nlohmann-json/3.11.2/include/
+INCLUDE = -I$(JSON_INCLUDE_PATH)
 CFLAGS = -g -w -std=c++14 -fpermissive -O3 $(INCLUDE)
 
 # Targets needed to bring the executable up to date
@@ -32,6 +35,9 @@ OVS.o: $(wildcard $(OVSPATH)*.cpp) ElementaryClasses.h
 # ** PartitionSort **
 PartitionSort.o: $(wildcard $(PSPATH)*.cpp) ElementaryClasses.h
 	$(CPP) $(CFLAGS) -c $(PSPATH)*.cpp
+
+NeuroCuts.o: $(wildcard $(NCPATH)*.cpp) ElementaryClasses.h
+	$(CPP) $(CFLAGS) -c $(NCPATH)*.cpp
 
 main.o: main.cpp CutTSS.h CutSplit.h TupleSpaceSearch.h ElementaryClasses.h
 	$(CPP) $(CFLAGS) -c main.cpp

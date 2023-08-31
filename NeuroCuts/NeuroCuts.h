@@ -5,35 +5,40 @@
 
 #include "./../ElementaryClasses.h"
 #include "./../HyperSplit/HyperSplit.h"
+
+#include <vector>
+#include <string>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
 using namespace std;
 
 struct NeuroCutsNode {
     bool isLeaf;
     int nrules;
     int depth;
-    int nodeType; // (Cuts, Linear, TSS)
+    int nodeType;  // Cuts, Linear, TSS, etc.
+    std::vector<Rule> rules;
+    std::vector<int> ncuts;
+    std::vector<std::vector<unsigned int>> field;
 
-    vector<Rule> rules;
-    vector<int> ncuts;
-    vector<vector<unsigned int> > field;
-    HyperSplit *HSnode;
-
-    vector<NeuroCutsNode*> children;
-    explicit NeuroCutsNode(const vector<Rule> &r, vector<vector<unsigned int> > f, int level = 0, bool isleaf = true, NodeType flag = Cuts) {
-        depth = level;
-        isLeaf = isleaf;
-        nodeType = flag;
-        field = std::move(f);
-        ncuts.resize(MAXDIMENSIONS, 1);
-        rules = r;
-        nrules = int(r.size());
-        HSnode = nullptr;
-
-//        field[LowDim].resize(MAXDIMENSIONS);
-//        field[HighDim].resize(MAXDIMENSIONS);
-    }
 };
 
+class NeuroCuts {
 
+public:
+    int ClassifyAPacket(const Packet &packet);
+    int ClassifyAPacket(const Packet &packet, uint64_t &Query);
+    int trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query);
+    void loadFromJSON(const nlohmann::json &j);
+
+private:
+    // Example members from CutSplit, adjust as necessary for NeuroCuts
+    vector<NeuroCutsNode*> nodeSet;
+    vector<int> maxPri;
+    HyperSplit *HSbig;  // Assuming NeuroCuts may also utilize HyperSplit
+
+    // Additional NeuroCuts specific members go here...
+};
 
 #endif

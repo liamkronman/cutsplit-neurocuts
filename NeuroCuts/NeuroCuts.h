@@ -21,7 +21,7 @@ struct NeuroCutsNode {
     std::vector<Rule> rules;
     std::vector<int> ncuts;
     std::vector<std::vector<unsigned int>> field;
-
+    HyperSplit *HSnode;
 };
 
 class NeuroCuts {

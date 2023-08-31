@@ -525,7 +525,7 @@ int main(int argc, char *argv[]) {
             std::chrono::duration<double> sum_timenc(0);
             match_miss = 0;
             results.clear();
-             const std::string jsonFilePath = "path_to_your_file.json";
+            const std::string jsonFilePath = "neurocuts.json";
 
             // Read JSON file into a std::string
             std::ifstream jsonFile(jsonFilePath);

@@ -13,7 +13,7 @@ CFLAGS = -g -w -std=c++14 -fpermissive -O3 $(INCLUDE)
 
 # Targets needed to bring the executable up to date
 
-main: main.o CutSplit.o
+main: main.o CutSplit.o NeuroCuts.o
 	$(CPP) $(CFLAGS) -o main *.o $(LIBS)
 # ---------------------------------------------------------------------------------------------------------
 
@@ -36,8 +36,8 @@ OVS.o: $(wildcard $(OVSPATH)*.cpp) ElementaryClasses.h
 PartitionSort.o: $(wildcard $(PSPATH)*.cpp) ElementaryClasses.h
 	$(CPP) $(CFLAGS) -c $(PSPATH)*.cpp
 
-NeuroCuts.o: $(wildcard $(NCPATH)*.cpp) ElementaryClasses.h
-	$(CPP) $(CFLAGS) -c $(NCPATH)*.cpp
+NeuroCuts.o: $(wildcard $(NCPATH)*.cpp) ElementaryClasses.h HyperSplit.h HyperSplit.cpp
+	$(CPP) $(CFLAGS) -c $(NCPATH)NeuroCuts.cpp
 
 main.o: main.cpp CutTSS.h CutSplit.h TupleSpaceSearch.h ElementaryClasses.h
 	$(CPP) $(CFLAGS) -c main.cpp

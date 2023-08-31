@@ -13,7 +13,7 @@ CFLAGS = -g -w -std=c++14 -fpermissive -O3 $(INCLUDE)
 
 # Targets needed to bring the executable up to date
 
-main: main.o CutSplit.o NeuroCuts.o
+main: main.o CutSplit.o NeuroCuts.o CutTSS.o HyperSplit.o OVS.o PartitionSort.o
 	$(CPP) $(CFLAGS) -o main *.o $(LIBS)
 # ---------------------------------------------------------------------------------------------------------
 

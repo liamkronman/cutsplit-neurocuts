@@ -22,8 +22,6 @@ int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUp
     unsigned int numbit = 32;
     unsigned int cchild;
 
-    // ... (The same logic for looking up a trie, assuming NeuroCuts has a similar structure)
-
     if(!node) {
         return -1;
     }
@@ -44,41 +42,72 @@ int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUp
     return matchPri;
 }
 
-void NeuroCuts::loadFromJSON(const nlohmann::json &j) {
-    // Assuming the JSON structure contains a list of nodes in the "nodes" field.
-    for (const auto& nodeObj : j.at("nodes")) {
-        NeuroCutsNode* newNode = new NeuroCutsNode;
+NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
+    NeuroCutsNode* newNode = new NeuroCutsNode;
 
-        nodeObj.at("isLeaf").get_to(newNode->isLeaf);
-        nodeObj.at("nrules").get_to(newNode->nrules);
-        nodeObj.at("depth").get_to(newNode->depth);
-        nodeObj.at("nodeType").get_to(newNode->nodeType);
-        nodeObj.at("ncuts").get_to(newNode->ncuts);
+    jNode.at("ranges").get_to(newNode->ranges);
 
-        for (const auto& ruleObj : nodeObj.at("rules")) {
-            Rule rule;
-
-            ruleObj.at("dim").get_to(rule.dim);
-            ruleObj.at("priority").get_to(rule.priority);
-            ruleObj.at("id").get_to(rule.id);
-            ruleObj.at("tag").get_to(rule.tag);
-            ruleObj.at("markedDelete").get_to(rule.markedDelete);
-            ruleObj.at("prefix_length").get_to(rule.prefix_length);
-
-            for (int i = 0; i < rule.dim; i++) {
-                std::array<Point, 2> arr = {ruleObj["range"][i][0], ruleObj["range"][i][1]};
-                rule.range.push_back(arr);
-            }
-
-            newNode->rules.push_back(rule);
+    auto& rules = jNode["rules"];
+    for (auto& rule : rules) {
+        Rule newRule;
+        newRule.priority = rule["priority"];
+        for (size_t i = 0, j = 0; i < rule["ranges"].size(); i += 2, j++) {
+            newRule.range[j][0] = rule["ranges"][i];     // start point
+            newRule.range[j][1] = rule["ranges"][i + 1]; // end point
         }
-
-        for (const auto& fieldObj : nodeObj.at("field")) {
-            newNode->field.push_back(fieldObj.get<std::vector<unsigned int>>());
-        }
-
-        nodeSet.push_back(newNode);
+        newNode->rules.push_back(newRule);
     }
 
-    // Note: Make sure to free the memory of the nodes (using delete) when they're no longer needed.
+    // Assuming "action" is either "partition" or not present/other values
+    newNode->partition = jNode.contains("action") && jNode.at("action") == "partition";
+
+    if (jNode.contains("children")) {
+        for (auto& childJson : jNode["children"]) {
+            NeuroCutsNode* childNode = makeNode(childJson);
+            newNode->children.push_back(childNode);
+        }
+    }
+
+    return newNode;
+}
+
+void NeuroCuts::loadFromJSON(const nlohmann::json &j) {
+    NeuroCutsNode* root = makeNode(j["root"]);
+    nodeSet.push_back(root);
+    // print node info
+    std::cout << "NeuroCutsNode: " << std::endl;
+    std::cout << "ranges: ";
+    for (auto& range : root->ranges) {
+        std::cout << range << " ";
+    }
+    std::cout << std::endl;
+    std::cout << "rules: " << std::endl;
+    for (auto& rule : root->rules) {
+        std::cout << "priority: " << rule.priority << std::endl;
+        std::cout << "ranges: ";
+        for (auto& range : rule.range) {
+            std::cout << range[0] << " " << range[1] << " ";
+        }
+        std::cout << std::endl;
+    }
+    std::cout << "partition: " << root->partition << std::endl;
+    std::cout << "children: " << std::endl;
+    for (auto& child : root->children) {
+        std::cout << "ranges: ";
+        for (auto& range : child->ranges) {
+            std::cout << range << " ";
+        }
+        std::cout << std::endl;
+        std::cout << "rules: " << std::endl;
+        for (auto& rule : child->rules) {
+            std::cout << "priority: " << rule.priority << std::endl;
+            std::cout << "ranges: ";
+            for (auto& range : rule.range) {
+                std::cout << range[0] << " " << range[1] << " ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "partition: " << child->partition << std::endl;
+    }
+    std::cout << std::endl;
 }

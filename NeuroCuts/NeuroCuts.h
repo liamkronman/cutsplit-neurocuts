@@ -14,17 +14,15 @@
 using namespace std;
 
 struct NeuroCutsNode {
-    bool isLeaf;
-    int nrules;
-    int depth;
-    int nodeType;  // Cuts, Linear, TSS, etc.
+
+    std::vector<int> ranges;
     std::vector<Rule> rules;
-    std::vector<int> ncuts;
-    std::vector<std::vector<unsigned int>> field;
-    HyperSplit *HSnode;
+    std::vector<NeuroCutsNode*> children;
+    bool partition;
+    // 
 };
 
-class NeuroCuts {
+class NeuroCuts : public PacketClassifier {
 
 public:
     int ClassifyAPacket(const Packet &packet);
@@ -36,7 +34,6 @@ private:
     // Example members from CutSplit, adjust as necessary for NeuroCuts
     vector<NeuroCutsNode*> nodeSet;
     vector<int> maxPri;
-    HyperSplit *HSbig;  // Assuming NeuroCuts may also utilize HyperSplit
 
     // Additional NeuroCuts specific members go here...
 };

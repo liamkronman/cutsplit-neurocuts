@@ -25,7 +25,7 @@ struct NeuroCutsNode {
 class NeuroCuts {
 
 public:
-    // int ClassifyAPacket(const Packet &packet);
+    int ClassifyAPacket(const Packet &packet);
     // int ClassifyAPacket(const Packet &packet, uint64_t &Query);
     // int trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query);
     void loadFromJSON(const nlohmann::json &j);

@@ -1,20 +1,21 @@
 #include "NeuroCuts.h"
+#include <bitset>
 
-// int NeuroCuts::ClassifyAPacket(const Packet &packet) {
-//     uint64_t Query = 0;
-//     return ClassifyAPacket(packet, Query);
-// }
+int NeuroCuts::ClassifyAPacket(const Packet &packet) {
+    uint64_t Query = 0;
+    return ClassifyAPacket(packet, Query);
+}
 
-// int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
-//     int matchPri = -1;
-//     if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
-//     if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
-//     if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
-//     if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
-//     // Assuming there is a similar QueryUpdate function for NeuroCuts
-//     // QueryUpdate(Query);
-//     return matchPri;
-// }
+int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
+    int matchPri = -1;
+    if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
+    if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
+    if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
+    if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
+    // Assuming there is a similar QueryUpdate function for NeuroCuts
+    // QueryUpdate(Query);
+    return matchPri;
+}
 
 // int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query) {
 //     int matchPri = -1;
@@ -74,40 +75,4 @@ NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
 void NeuroCuts::loadFromJSON(const nlohmann::json &j) {
     NeuroCutsNode* root = makeNode(j["root"]);
     nodeSet.push_back(root);
-    // print node info
-    std::cout << "NeuroCutsNode: " << std::endl;
-    std::cout << "ranges: ";
-    for (auto& range : root->ranges) {
-        std::cout << range << " ";
-    }
-    std::cout << std::endl;
-    std::cout << "rules: " << std::endl;
-    for (auto& rule : root->rules) {
-        std::cout << "priority: " << rule.priority << std::endl;
-        std::cout << "ranges: ";
-        for (auto& range : rule.range) {
-            std::cout << range[0] << " " << range[1] << " ";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "partition: " << root->partition << std::endl;
-    std::cout << "children: " << std::endl;
-    for (auto& child : root->children) {
-        std::cout << "ranges: ";
-        for (auto& range : child->ranges) {
-            std::cout << range << " ";
-        }
-        std::cout << std::endl;
-        std::cout << "rules: " << std::endl;
-        for (auto& rule : child->rules) {
-            std::cout << "priority: " << rule.priority << std::endl;
-            std::cout << "ranges: ";
-            for (auto& range : rule.range) {
-                std::cout << range[0] << " " << range[1] << " ";
-            }
-            std::cout << std::endl;
-        }
-        std::cout << "partition: " << child->partition << std::endl;
-    }
-    std::cout << std::endl;
 }

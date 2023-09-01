@@ -29,6 +29,7 @@ public:
     // int ClassifyAPacket(const Packet &packet, uint64_t &Query);
     // int trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query);
     void loadFromJSON(const nlohmann::json &j);
+    NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode);
 
 private:
     // Example members from CutSplit, adjust as necessary for NeuroCuts

@@ -22,7 +22,7 @@ struct NeuroCutsNode {
     // 
 };
 
-class NeuroCuts : public PacketClassifier {
+class NeuroCuts {
 
 public:
     // int ClassifyAPacket(const Packet &packet);

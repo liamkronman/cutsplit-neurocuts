@@ -1,46 +1,46 @@
 #include "NeuroCuts.h"
 
-int NeuroCuts::ClassifyAPacket(const Packet &packet) {
-    uint64_t Query = 0;
-    return ClassifyAPacket(packet, Query);
-}
+// int NeuroCuts::ClassifyAPacket(const Packet &packet) {
+//     uint64_t Query = 0;
+//     return ClassifyAPacket(packet, Query);
+// }
 
-int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
-    int matchPri = -1;
-    if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
-    if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
-    if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
-    if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
-    // Assuming there is a similar QueryUpdate function for NeuroCuts
-    // QueryUpdate(Query);
-    return matchPri;
-}
+// int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
+//     int matchPri = -1;
+//     if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
+//     if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
+//     if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
+//     if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
+//     // Assuming there is a similar QueryUpdate function for NeuroCuts
+//     // QueryUpdate(Query);
+//     return matchPri;
+// }
 
-int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query) {
-    int matchPri = -1;
-    NeuroCutsNode* node = root;
-    unsigned int numbit = 32;
-    unsigned int cchild;
+// int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query) {
+//     int matchPri = -1;
+//     NeuroCutsNode* node = root;
+//     unsigned int numbit = 32;
+//     unsigned int cchild;
 
-    if(!node) {
-        return -1;
-    }
-    if(node->nodeType == TSS) {
-        // Assuming NeuroCutsNode might have a different structure
-        matchPri = node->HSnode->ClassifyAPacket(packet, Query);
-    } else {
-        // Assuming NeuroCutsNode might have a list of rules similar to CutSplitNode
-        for(const Rule &rule : node->rules) {
-            Query++;
-            if(rule.MatchesPacket(packet)) {
-                matchPri = rule.priority;
-                break;
-            }
-        }
-    }
+//     if(!node) {
+//         return -1;
+//     }
+//     if(node->nodeType == TSS) {
+//         // Assuming NeuroCutsNode might have a different structure
+//         matchPri = node->HSnode->ClassifyAPacket(packet, Query);
+//     } else {
+//         // Assuming NeuroCutsNode might have a list of rules similar to CutSplitNode
+//         for(const Rule &rule : node->rules) {
+//             Query++;
+//             if(rule.MatchesPacket(packet)) {
+//                 matchPri = rule.priority;
+//                 break;
+//             }
+//         }
+//     }
 
-    return matchPri;
-}
+//     return matchPri;
+// }
 
 NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
     NeuroCutsNode* newNode = new NeuroCutsNode;

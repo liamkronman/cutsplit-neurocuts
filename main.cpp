@@ -542,26 +542,26 @@ int main(int argc, char *argv[]) {
             NeuroCuts NS;
             NS.loadFromJSON(j);
 
-            for (int t = 0; t < trials; t++) {
-                start = std::chrono::steady_clock::now();
+//             for (int t = 0; t < trials; t++) {
+//                 start = std::chrono::steady_clock::now();
 
-                for (auto const &p : packets) {
-                    results.push_back(number_rule - NS.ClassifyAPacket(p) - 1);
-//                    results.push_back(pri_id[CS.ClassifyAPacket(p)]);
-                }
+//                 for (auto const &p : packets) {
+//                     results.push_back(number_rule - NS.ClassifyAPacket(p) - 1);
+// //                    results.push_back(pri_id[CS.ClassifyAPacket(p)]);
+//                 }
 
-                end = std::chrono::steady_clock::now();
-                elapsed_seconds = end - start;
-                sum_timenc += elapsed_seconds;
-                for (int i = 0; i < number_pkt; i++)
-                    if ((results[i] == -1) || (packets[i][5] < results[i])) match_miss++;
-            }
+//                 end = std::chrono::steady_clock::now();
+//                 elapsed_seconds = end - start;
+//                 sum_timenc += elapsed_seconds;
+//                 for (int i = 0; i < number_pkt; i++)
+//                     if ((results[i] == -1) || (packets[i][5] < results[i])) match_miss++;
+//             }
 
-            printf("\t%d packets are classified, %d of them are misclassified\n", number_pkt * trials, match_miss);
-            printf("\tTotal classification time: %f s\n", sum_timenc.count() / trials);
-            printf("\tAverage classification time: %f us\n",
-                   sum_timenc.count() * 1e6 / double(trials * packets.size()));
-            printf("\tThroughput: %f Mpps\n", 1 / (sum_timenc.count() * 1e6 / double(trials * packets.size())));
+//             printf("\t%d packets are classified, %d of them are misclassified\n", number_pkt * trials, match_miss);
+//             printf("\tTotal classification time: %f s\n", sum_timenc.count() / trials);
+//             printf("\tAverage classification time: %f us\n",
+//                    sum_timenc.count() * 1e6 / double(trials * packets.size()));
+//             printf("\tThroughput: %f Mpps\n", 1 / (sum_timenc.count() * 1e6 / double(trials * packets.size())));
             jsonFile.close();
         }
 

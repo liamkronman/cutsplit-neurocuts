@@ -25,15 +25,15 @@ struct NeuroCutsNode {
 class NeuroCuts : public PacketClassifier {
 
 public:
-    int ClassifyAPacket(const Packet &packet);
-    int ClassifyAPacket(const Packet &packet, uint64_t &Query);
-    int trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query);
+    // int ClassifyAPacket(const Packet &packet);
+    // int ClassifyAPacket(const Packet &packet, uint64_t &Query);
+    // int trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query);
     void loadFromJSON(const nlohmann::json &j);
 
 private:
     // Example members from CutSplit, adjust as necessary for NeuroCuts
     vector<NeuroCutsNode*> nodeSet;
-    vector<int> maxPri;
+    // vector<int> maxPri;
 
     // Additional NeuroCuts specific members go here...
 };

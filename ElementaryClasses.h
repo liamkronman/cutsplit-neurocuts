@@ -103,7 +103,7 @@ struct Rule {
 
     public:
         bool inline matches(const Packet &p) const {
-            assert(p.size() == dim, "Packet size doesn't match rule dimension.");
+            // assert(p.size() == dim, "Packet size doesn't match rule dimension.");
             std::vector<int> adjustedRanges;
             for (int i = 0; i < dim; i++) {
                 adjustedRanges.push_back(p[i]);

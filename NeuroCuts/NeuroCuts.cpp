@@ -1,21 +1,21 @@
 #include "NeuroCuts.h"
 #include <bitset>
 
-int NeuroCuts::ClassifyAPacket(const Packet &packet) {
-    uint64_t Query = 0;
-    return ClassifyAPacket(packet, Query);
-}
+// int NeuroCuts::ClassifyAPacket(const Packet &packet) {
+//     uint64_t Query = 0;
+//     return ClassifyAPacket(packet, Query);
+// }
 
-int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
-    int matchPri = -1;
-    if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
-    if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
-    if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
-    if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
-    // Assuming there is a similar QueryUpdate function for NeuroCuts
-    // QueryUpdate(Query);
-    return matchPri;
-}
+// int NeuroCuts::ClassifyAPacket(const Packet &packet, uint64_t &Query) {
+//     int matchPri = -1;
+//     if(nodeSet[0]) matchPri = trieLookup(packet, nodeSet[0], 3, Query);
+//     if(nodeSet[1] && maxPri[1] > matchPri) matchPri = trieLookup(packet, nodeSet[1], 1, Query);
+//     if(nodeSet[2] && maxPri[2] > matchPri) matchPri = trieLookup(packet, nodeSet[2], 2, Query);
+//     if(HSbig && maxPri[3] > matchPri) matchPri = HSbig->ClassifyAPacket(packet, Query);
+//     // Assuming there is a similar QueryUpdate function for NeuroCuts
+//     // QueryUpdate(Query);
+//     return matchPri;
+// }
 
 // int NeuroCuts::trieLookup(const Packet &packet, NeuroCutsNode *root, int speedUpFlag, uint64_t &Query) {
 //     int matchPri = -1;
@@ -60,7 +60,7 @@ NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
     }
 
     // Assuming "action" is either "partition" or not present/other values
-    newNode->partition = jNode.contains("action") && jNode.at("action") == "partition";
+    newNode->partition = jNode.contains("action") && jNode.at("action")[0] == "partition";
 
     if (jNode.contains("children")) {
         for (auto& childJson : jNode["children"]) {
@@ -75,4 +75,60 @@ NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
 void NeuroCuts::loadFromJSON(const nlohmann::json &j) {
     NeuroCutsNode* root = makeNode(j["root"]);
     nodeSet.push_back(root);
+}
+
+bool NeuroCutsNode::contains(const Packet& packet) {
+    // Assuming Packet is represented as an array or std::vector<int> of size 5
+    assert(packet.size() == 5);
+    std::vector<int> dimensions = {
+        packet[0], packet[0] + 1,
+        packet[1], packet[1] + 1,
+        packet[2], packet[2] + 1,
+        packet[3], packet[3] + 1,
+        packet[4], packet[4] + 1
+    };
+    return is_intersect_multi_dimension(dimensions);
+}
+
+Rule* NeuroCutsNode::match(const Packet& packet) {
+    if (partition) {
+        std::vector<Rule*> matches;
+        for (NeuroCutsNode* child : children) {
+            Rule* match = child->match(packet);
+            if (match) {
+                matches.push_back(match);
+            }
+        }
+        if (!matches.empty()) {
+            // Sorting by the index of the rule in the `rules` vector
+            std::sort(matches.begin(), matches.end(), [&](const Rule* a, const Rule* b) {
+                return std::find(rules.begin(), rules.end(), *a) < std::find(rules.begin(), rules.end(), *b);
+            });
+            return matches.front();
+        }
+        return nullptr;
+    } else if (!children.empty()) {
+        for (NeuroCutsNode* child : children) {
+            if (child->contains(packet)) {
+                return child->match(packet);
+            }
+        }
+        return nullptr;
+    } else {
+        for (Rule& rule : rules) {
+            if (rule.matches(packet)) {  // Assuming 'matches' is a method in Rule class
+                return &rule;
+            }
+        }
+        return nullptr;
+    }
+}
+
+bool NeuroCutsNode::is_intersect_multi_dimension(const std::vector<int>& ranges) {
+    for (int i = 0; i < 5; i++) {
+        if (ranges[i * 2] >= this->ranges[i * 2 + 1] || ranges[i * 2 + 1] <= this->ranges[i * 2]) {
+            return false;
+        }
+    }
+    return true;
 }

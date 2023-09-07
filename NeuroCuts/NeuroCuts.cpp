@@ -44,14 +44,20 @@
 // }
 
 NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
+    // std::cout << "Entering makeNode" << std::endl;
+    
     NeuroCutsNode* newNode = new NeuroCutsNode;
 
+    // std::cout << "Attempting to get 'ranges'" << std::endl;
     jNode.at("ranges").get_to(newNode->ranges);
 
     auto& rules = jNode["rules"];
     for (auto& rule : rules) {
         Rule newRule;
         newRule.priority = rule["priority"];
+        
+        // std::cout << "Processing rule with priority: " << newRule.priority << std::endl;
+        
         for (size_t i = 0, j = 0; i < rule["ranges"].size(); i += 2, j++) {
             newRule.range[j][0] = rule["ranges"][i];     // start point
             newRule.range[j][1] = rule["ranges"][i + 1]; // end point
@@ -59,16 +65,25 @@ NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
         newNode->rules.push_back(newRule);
     }
 
+    // std::cout << "Checking for 'action'" << std::endl;
     // Assuming "action" is either "partition" or not present/other values
-    newNode->partition = jNode.contains("action") && jNode.at("action")[0] == "partition";
+    // if (jNode.contains("action")) {
+    //     std::cout << jNode.at("action") << std::endl;
+    // }
+    newNode->partition = jNode.contains("action") && jNode.at("action") != nlohmann::json::value_t::null && jNode.at("action")[0] == "partition";
 
     if (jNode.contains("children")) {
+        // std::cout << "Processing 'children'" << std::endl;
         for (auto& childJson : jNode["children"]) {
             NeuroCutsNode* childNode = makeNode(childJson);
             newNode->children.push_back(childNode);
         }
     }
+    // } else {
+    //     std::cout << "No 'children' to process" << std::endl;
+    // }
 
+    // std::cout << "Exiting makeNode" << std::endl;
     return newNode;
 }
 
@@ -79,13 +94,19 @@ void NeuroCuts::loadFromJSON(const nlohmann::json &j) {
 
 bool NeuroCutsNode::contains(const Packet& packet) {
     // Assuming Packet is represented as an array or std::vector<int> of size 5
-    assert(packet.size() == 5);
+    // print the packet contents
+    // std::cout << "Packet: ";
+    // for (int i = 0; i < packet.size(); i++) {
+    //     std::cout << packet[i] << " ";
+    // }
+    // std::cout << std::endl;
+    // assert(packet.size() == 5);
     std::vector<int> dimensions = {
-        packet[0], packet[0] + 1,
-        packet[1], packet[1] + 1,
-        packet[2], packet[2] + 1,
-        packet[3], packet[3] + 1,
-        packet[4], packet[4] + 1
+        static_cast<int>(packet[0]), static_cast<int>(packet[0] + 1),
+        static_cast<int>(packet[1]), static_cast<int>(packet[1] + 1),
+        static_cast<int>(packet[2]), static_cast<int>(packet[2] + 1),
+        static_cast<int>(packet[3]), static_cast<int>(packet[3] + 1),
+        static_cast<int>(packet[4]), static_cast<int>(packet[4] + 1)
     };
     return is_intersect_multi_dimension(dimensions);
 }

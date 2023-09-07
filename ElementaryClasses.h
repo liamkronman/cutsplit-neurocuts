@@ -92,6 +92,25 @@ struct Rule {
         }
         printf("\n");
     }
+
+    private:
+        bool is_intersect_multi_dimension(const std::vector<int>& ranges) const {
+            for (int i = 0; i < dim; i++) {
+                if (ranges[i*2] >= range[i][1] || ranges[i*2 + 1] <= range[i][0]) return false;
+            }
+            return true;
+        }
+
+    public:
+        bool inline matches(const Packet &p) const {
+            assert(p.size() == dim, "Packet size doesn't match rule dimension.");
+            std::vector<int> adjustedRanges;
+            for (int i = 0; i < dim; i++) {
+                adjustedRanges.push_back(p[i]);
+                adjustedRanges.push_back(p[i] + 1);
+            }
+            return is_intersect_multi_dimension(adjustedRanges);
+        }
 };
 
 class PacketClassifier {

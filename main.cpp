@@ -521,10 +521,6 @@ int main(int argc, char *argv[]) {
             printf("\tThroughput: %f Mpps\n", 1 / (sum_timecs.count() * 1e6 / double(trials * packets.size())));
 
             // NeuroCuts---Classification---
-            printf("NeuroCuts\n");
-            std::chrono::duration<double> sum_timenc(0);
-            match_miss = 0;
-            results.clear();
             const std::string jsonFilePath = "neurocuts.json";
 
             // Read JSON file into a std::string
@@ -539,8 +535,38 @@ int main(int argc, char *argv[]) {
             // Parse the JSON string using nlohmann::json
             auto j = nlohmann::json::parse(jsonString);
 
-            NeuroCuts NS;
-            NS.loadFromJSON(j);
+            NeuroCuts NC;
+            NC.loadFromJSON(j);
+
+            printf("NeuroCuts\n");
+            std::chrono::duration<double> sum_time_nc(0);
+            match_miss = 0;
+            results.clear();
+            for (int t = 0; t < trials; t++) {
+                start = std::chrono::steady_clock::now();
+
+                for (auto const &p : packets) {
+                    Rule* matched_rule = NC.match(p);  // Assuming `match` returns a pointer to the matched Rule
+                    if (matched_rule) {
+                        results.push_back(matched_rule->priority);  // Assuming `priority` is an integer member of Rule
+                    } else {
+                        results.push_back(-1);  // No rule matched
+                    }
+                }
+
+                end = std::chrono::steady_clock::now();
+                elapsed_seconds = end - start;
+                sum_time_nc += elapsed_seconds;
+                for (int i = 0; i < number_pkt; i++)
+                    if ((results[i] == -1) || (packets[i][5] < results[i])) match_miss++;  // packets[i][5] might need adjustment based on your packet representation
+            }
+
+            printf("\t%d packets are classified, %d of them are misclassified\n", number_pkt * trials, match_miss);
+            printf("\tTotal classification time: %f s\n", sum_time_nc.count() / trials);
+            printf("\tAverage classification time: %f us\n",
+                sum_time_nc.count() * 1e6 / double(trials * packets.size()));
+            printf("\tThroughput: %f Mpps\n", 1 / (sum_time_nc.count() * 1e6 / double(trials * packets.size())));
+
 
 //             for (int t = 0; t < trials; t++) {
 //                 start = std::chrono::steady_clock::now();

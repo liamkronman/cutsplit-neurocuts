@@ -44,8 +44,8 @@
 
 using namespace std;
 
-FILE *fpr = fopen("./ipc_1k", "r");           // ruleset file
-FILE *fpt = fopen("./ipc_1k_trace", "r");           //  trace file 
+FILE *fpr = fopen("./acl1_5", "r");           // ruleset file
+FILE *fpt = fopen("./acl1_5_trace", "r");           //  trace file 
 int classificationFlag = 1; //0:!run classification; 1:run classification 
 int updateFlag = 1; //0:!run update; 1:run update (rand_update[MAXRULES]: ~half insert & half delete)
 
@@ -521,7 +521,7 @@ int main(int argc, char *argv[]) {
             printf("\tThroughput: %f Mpps\n", 1 / (sum_timecs.count() * 1e6 / double(trials * packets.size())));
 
             // NeuroCuts---Classification---
-            const std::string jsonFilePath = "neurocuts.json";
+            const std::string jsonFilePath = "neurocuts2.json";
 
             // Read JSON file into a std::string
             std::ifstream jsonFile(jsonFilePath);
@@ -547,11 +547,17 @@ int main(int argc, char *argv[]) {
 
                 for (auto const &p : packets) {
                     Rule* matched_rule = NC.match(p);  // Assuming `match` returns a pointer to the matched Rule
-                    if (matched_rule) {
+                    if (matched_rule != nullptr) {
                         results.push_back(matched_rule->priority);  // Assuming `priority` is an integer member of Rule
                     } else {
                         results.push_back(-1);  // No rule matched
                     }
+                    // // print results vector
+                    // for (int i = 0; i < results.size(); i++) {
+                    //     std::cout << results[i] << " ";
+                    // }
+
+                    // std::cout << std::endl;
                 }
 
                 end = std::chrono::steady_clock::now();

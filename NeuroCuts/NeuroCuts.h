@@ -15,7 +15,7 @@ using namespace std;
 
 struct NeuroCutsNode {
 
-    std::vector<int> ranges;
+    std::vector<long long> ranges;
     std::vector<Rule> rules;
     std::vector<NeuroCutsNode*> children;
     bool partition;

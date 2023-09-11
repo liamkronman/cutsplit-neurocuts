@@ -48,22 +48,39 @@ NeuroCutsNode* NeuroCuts::makeNode(const nlohmann::json &jNode) {
     
     NeuroCutsNode* newNode = new NeuroCutsNode;
 
-    // std::cout << "Attempting to get 'ranges'" << std::endl;
-    jNode.at("ranges").get_to(newNode->ranges);
-
-    auto& rules = jNode["rules"];
-    for (auto& rule : rules) {
-        Rule newRule;
-        newRule.priority = rule["priority"];
-        
-        // std::cout << "Processing rule with priority: " << newRule.priority << std::endl;
-        
-        for (size_t i = 0, j = 0; i < rule["ranges"].size(); i += 2, j++) {
-            newRule.range[j][0] = rule["ranges"][i];     // start point
-            newRule.range[j][1] = rule["ranges"][i + 1]; // end point
+    // Check if jNode has the "ranges" key and retrieve its value.
+    if (jNode.contains("ranges")) {
+        //print jNode["ranges"]
+        // std::cout << "Ranges: " << jNode["ranges"] << std::endl;
+        for (size_t i = 0; i < jNode["ranges"].size(); i++) {
+            // Cast the value to an unsigned int before adding it to the ranges.
+            newNode->ranges.push_back(static_cast<unsigned long long>(jNode["ranges"][i]));
         }
-        newNode->rules.push_back(newRule);
     }
+
+    // Assuming rules is a JSON array.
+    if (jNode.contains("rules")) {
+        auto& rules = jNode["rules"];
+        for (auto& rule : rules) {
+            Rule newRule;
+
+            // Make sure the priority value is cast to unsigned int.
+            if (rule.contains("priority")) {
+                newRule.priority = static_cast<unsigned long long>(rule["priority"]);
+            }
+
+            if (rule.contains("ranges")) {
+                for (size_t i = 0, j = 0; i < rule["ranges"].size(); i += 2, j++) {
+                    // Cast the values to unsigned int.
+                    newRule.range[j][0] = static_cast<unsigned long long>(rule["ranges"][i]);
+                    newRule.range[j][1] = static_cast<unsigned long long>(rule["ranges"][i + 1]);
+                }
+            }
+            
+            newNode->rules.push_back(newRule);
+        }
+    }
+
 
     // std::cout << "Checking for 'action'" << std::endl;
     // Assuming "action" is either "partition" or not present/other values
@@ -125,12 +142,15 @@ Rule* NeuroCutsNode::match(const Packet& packet) {
             std::sort(matches.begin(), matches.end(), [&](const Rule* a, const Rule* b) {
                 return std::find(rules.begin(), rules.end(), *a) < std::find(rules.begin(), rules.end(), *b);
             });
+            // std::cout << "Matched " << matches.size() << " rules" << std::endl;
             return matches.front();
         }
         return nullptr;
     } else if (!children.empty()) {
         for (NeuroCutsNode* child : children) {
+            // std::cout << "Checking child" << std::endl;
             if (child->contains(packet)) {
+                // std::cout << "Packet contained in child" << std::endl;
                 return child->match(packet);
             }
         }
@@ -138,6 +158,7 @@ Rule* NeuroCutsNode::match(const Packet& packet) {
     } else {
         for (Rule& rule : rules) {
             if (rule.matches(packet)) {  // Assuming 'matches' is a method in Rule class
+                // std::cout << "Packet matched rule" << std::endl;
                 return &rule;
             }
         }
@@ -146,8 +167,31 @@ Rule* NeuroCutsNode::match(const Packet& packet) {
 }
 
 bool NeuroCutsNode::is_intersect_multi_dimension(const std::vector<int>& ranges) {
+    // std::cout << "Checking intersection" << std::endl;
+    // print ranges
+
+    // std::cout << "Ranges: ";
+    // for (int i = 0; i < ranges.size(); i++) {
+    //     std::cout << static_cast<unsigned int>(ranges[i]) << " ";
+    // }
+
+    // std::cout << std::endl;
+
+    // print this->ranges
+    // std::cout << "NC Ranges: ";
+    // for (int i = 0; i < this->ranges.size(); i++) {
+    //     std::cout << static_cast<unsigned long long>(this->ranges[i]) << " ";
+    // }
+
+    // std::cout << std::endl;
     for (int i = 0; i < 5; i++) {
-        if (ranges[i * 2] >= this->ranges[i * 2 + 1] || ranges[i * 2 + 1] <= this->ranges[i * 2]) {
+        // std::cout << "Checking dimension " << i << std::endl;
+        // // print ranges[i*2] and ranges[i*2 + 1]
+        // std::cout << "Ranges: " << static_cast<unsigned int>(ranges[i * 2]) << " " << static_cast<unsigned int>(ranges[i * 2 + 1]) << std::endl;
+        // std::cout << "NC Ranges: " << static_cast<unsigned long>(this->ranges[i * 2]) << " " << static_cast<unsigned long>(this->ranges[i * 2 + 1]) << std::endl;
+        // std::cout << "comp" << (static_cast<unsigned long long>(ranges[i * 2]) >= static_cast<unsigned long long>(this->ranges[i * 2 + 1])) << " " << (static_cast<unsigned long long>(ranges[i * 2 + 1]) <= static_cast<unsigned long long>(this->ranges[i * 2])) << std::endl;
+        if (static_cast<unsigned int>(ranges[i * 2]) >= static_cast<unsigned long long>(this->ranges[i * 2 + 1]) || static_cast<unsigned int>(ranges[i * 2 + 1]) <= static_cast<unsigned long long>(this->ranges[i * 2])) {
+            // std::cout << "No intersection: " << i << std::endl;
             return false;
         }
     }

@@ -521,7 +521,7 @@ int main(int argc, char *argv[]) {
             printf("\tThroughput: %f Mpps\n", 1 / (sum_timecs.count() * 1e6 / double(trials * packets.size())));
 
             // NeuroCuts---Classification---
-            const std::string jsonFilePath = "neurocuts2.json";
+            const std::string jsonFilePath = "neurocuts3.json";
 
             // Read JSON file into a std::string
             std::ifstream jsonFile(jsonFilePath);

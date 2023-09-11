@@ -44,8 +44,8 @@
 
 using namespace std;
 
-FILE *fpr = fopen("./acl1_5", "r");           // ruleset file
-FILE *fpt = fopen("./acl1_5_trace", "r");           //  trace file 
+FILE *fpr = fopen("./acl1_10k", "r");           // ruleset file
+FILE *fpt = fopen("./acl1_10k_trace", "r");           //  trace file 
 int classificationFlag = 1; //0:!run classification; 1:run classification 
 int updateFlag = 1; //0:!run update; 1:run update (rand_update[MAXRULES]: ~half insert & half delete)
 
@@ -521,7 +521,7 @@ int main(int argc, char *argv[]) {
             printf("\tThroughput: %f Mpps\n", 1 / (sum_timecs.count() * 1e6 / double(trials * packets.size())));
 
             // NeuroCuts---Classification---
-            const std::string jsonFilePath = "neurocuts3.json";
+            const std::string jsonFilePath = "neurocuts_acl1_10k.json";
 
             // Read JSON file into a std::string
             std::ifstream jsonFile(jsonFilePath);
